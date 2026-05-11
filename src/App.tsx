@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  Shield,
   Activity,
   Globe as GlobeIcon,
   Layers,
@@ -24,7 +23,6 @@ import {
   Film,
   ArrowLeft,
   MessageSquare,
-  Send,
   Maximize2,
   Minimize2,
   Sparkles
@@ -137,7 +135,7 @@ const App: React.FC = () => {
   const terminalWelcomeDone = useRef(false);
   const logsEndRef = useRef<HTMLDivElement>(null);
 
-  const { news: liveNews, loading, breakingNews, dismissBreaking, loadMore, isLoadingMore } = useNewsStream();
+  const { news: liveNews, loading, breakingNews, loadMore, isLoadingMore } = useNewsStream();
   const discovered = useBrowserDiscovery(true);
   const markets = useMarketTicker();
 
@@ -200,7 +198,6 @@ const App: React.FC = () => {
   }, [activeView]);
 
   // Durable Notification Logic
-  const [notifiedId, setNotifiedId] = useState<string | null>(null);
   useEffect(() => {
     if (breakingNews) {
       const notifiedKey = `vxz_notified_${breakingNews.id}`;
@@ -401,7 +398,7 @@ const App: React.FC = () => {
       <div className="scanlines" />
 
       {/* --- Sidebar --- */}
-      <nav className="glass" style={{ width: '64px', flexShrink: 0, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', py: '20px', borderRight: '1px solid var(--border-strong)', zIndex: 10 }}>
+      <nav className="glass" style={{ width: '64px', flexShrink: 0, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '20px', paddingBottom: '20px', borderRight: '1px solid var(--border-strong)', zIndex: 10 }}>
         <div style={{ margin: '20px 0 40px 0' }}>
           <VXZLogo size={32} />
         </div>
@@ -453,7 +450,7 @@ const App: React.FC = () => {
         </div>
 
         {/* Top Header */}
-        <header className="glass" style={{ height: '64px', flexShrink: 0, display: 'flex', alignItems: 'center', px: '24px', borderBottom: '1px solid var(--border-strong)', justifyContent: 'space-between', zIndex: 10 }}>
+        <header className="glass" style={{ height: '64px', flexShrink: 0, display: 'flex', alignItems: 'center', paddingLeft: '24px', paddingRight: '24px', borderBottom: '1px solid var(--border-strong)', justifyContent: 'space-between', zIndex: 10 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
              <VXZLogo size={24} glow={false} />
             <h1 style={{ fontSize: '18px', fontWeight: 700, marginLeft: '4px' }}>VXZ<span style={{ color: 'var(--accent-blue)' }}>.NEWS</span></h1>
@@ -797,9 +794,6 @@ const App: React.FC = () => {
                         {activeTvData && activeTvData.media && activeTvData.media.length > 0 ? (() => {
                           // Use new bot schema: prioritize primary, then any video
                           const primaryMedia = activeTvData.media.find(m => m.primary === true) || activeTvData.media.find(m => m.type === 'source_video' || m.type === 'ai_generated') || activeTvData.media[0];
-
-                          // AI-generated content badge overlay
-                          const isAiGenerated = primaryMedia.type === 'ai_generated';
 
                           if (primaryMedia.format === 'youtube') {
                             const ytId = getYoutubeId(primaryMedia.media) || getYoutubeId(primaryMedia.url);

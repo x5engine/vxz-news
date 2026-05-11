@@ -1,5 +1,3 @@
-import React from 'react';
-
 const VXZLogo = ({ size = 32, glow = true }) => {
   const color = "var(--accent-blue)";
   const id = `vxz-glow-${size}`;

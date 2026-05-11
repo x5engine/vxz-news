@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore, enableIndexedDbPersistence, CACHE_SIZE_UNLIMITED } from "firebase/firestore";
+import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 // Your web app's Firebase configuration
@@ -16,15 +16,13 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+getAnalytics(app); // Initialize analytics
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 
 // Enable offline persistence with unlimited cache for better performance and offline browsing
 // This allows users to browse previously loaded news even without internet connection
-enableIndexedDbPersistence(db, {
-    cacheSizeBytes: CACHE_SIZE_UNLIMITED
-}).catch((err) => {
+enableIndexedDbPersistence(db).catch((err) => {
     if (err.code === 'failed-precondition') {
         // Multiple tabs open, persistence can only be enabled in one tab at a time
         console.warn('⚠️ VXZ Offline Mode: Multiple tabs detected. Persistence disabled.');

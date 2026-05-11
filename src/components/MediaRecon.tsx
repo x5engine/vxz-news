@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Camera, Film, AlertTriangle, Loader2, X } from 'lucide-react';
+import { Camera, Film, AlertTriangle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { audio } from '../services/audio';
 import VXZLogo from './VXZLogo';
@@ -112,7 +112,7 @@ export const MediaRecon: React.FC<MediaReconProps> = ({ query, backendMedia, sou
       }
 
       // Prioritize videos/youtube in the UI
-      combinedMedia.sort((a, b) => {
+      combinedMedia.sort((a) => {
         if (a.type === 'youtube' || a.type === 'video') return -1;
         return 1;
       });
