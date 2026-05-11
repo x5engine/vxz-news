@@ -273,14 +273,16 @@ const App: React.FC = () => {
   
   const filteredNews = liveNews.filter(n => {
     const matchesSearch = n.title.toLowerCase().includes(searchQuery.toLowerCase()) || n.summary.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     let matchesCategory = true;
-    if (activeCategory === 'BREAKING') {
+    if (activeCategory === 'CONFIRMED') {
+      matchesCategory = n.status === 'CONFIRMED';
+    } else if (activeCategory === 'BREAKING') {
       matchesCategory = n.truthScore >= 80;
     } else if (activeCategory) {
       matchesCategory = n.category === activeCategory;
     }
-    
+
     return matchesSearch && matchesCategory;
   });
 
@@ -805,12 +807,19 @@ const App: React.FC = () => {
                         >
                           ALL_INTEL
                         </button>
-                        <button 
+                        <button
                           onClick={() => { audio.playClick(); setActiveCategory('BREAKING'); }}
                           className="mono"
                           style={{ padding: '2px 8px', borderRadius: '12px', border: activeCategory === 'BREAKING' ? '1px solid var(--accent-red)' : '1px solid var(--border-strong)', background: activeCategory === 'BREAKING' ? 'rgba(255, 59, 48, 0.1)' : 'transparent', color: activeCategory === 'BREAKING' ? 'var(--accent-red)' : 'var(--text-tertiary)', fontSize: '9px', cursor: 'pointer', whiteSpace: 'nowrap', fontWeight: 'bold' }}
                         >
                           BREAKING_ONLY
+                        </button>
+                        <button
+                          onClick={() => { audio.playClick(); setActiveCategory('CONFIRMED'); }}
+                          className="mono"
+                          style={{ padding: '2px 8px', borderRadius: '12px', border: activeCategory === 'CONFIRMED' ? '1px solid var(--accent-green)' : '1px solid var(--border-strong)', background: activeCategory === 'CONFIRMED' ? 'rgba(52, 199, 89, 0.1)' : 'transparent', color: activeCategory === 'CONFIRMED' ? 'var(--accent-green)' : 'var(--text-tertiary)', fontSize: '9px', cursor: 'pointer', whiteSpace: 'nowrap', fontWeight: 'bold' }}
+                        >
+                          CONFIRMED_ONLY
                         </button>
                         {categories.length > 0 && categories.map(cat => (
                           <button 
