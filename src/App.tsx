@@ -524,8 +524,9 @@ const App: React.FC = () => {
             'AI Engine: Gemini 1.5 Pro',
             'Globe: Three.js + WebGL',
             '',
-            'Built with ❤️  by x5engine',
-            'Powered by Claude Sonnet 4.5',
+            '🚀 Developed by: 01TEK LLC',
+            '🌐 Web: 01tek.com',
+            '📅 Launched: 2026',
             '',
             'Intelligence is the new currency.'
           ]);
@@ -640,8 +641,8 @@ const App: React.FC = () => {
             'Global news from T1 newswires, T2 broadcasters,',
             'and future T3 OSINT sources.',
             '',
-            '🚀 Built by: x5engine',
-            '🤖 Powered by: Claude Sonnet 4.5',
+            '🚀 Developed by: 01TEK LLC',
+            '🌐 Web: 01tek.com',
             '📅 Launched: 2026',
             '',
             'Intelligence you can trust.',
