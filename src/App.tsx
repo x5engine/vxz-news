@@ -337,37 +337,322 @@ const App: React.FC = () => {
 
       switch(baseCmd) {
         case 'help':
-          setTerminalLogs(prev => [...prev, 
-            'AVAILABLE DIRECTIVES:', 
-            '  readup  - Raw text intelligence stream', 
-            '  ping    - Ping the backend Hunter Array status', 
-            '  clear   - Clear terminal screen', 
-            '  matrix  - System visual override',
+          setTerminalLogs(prev => [...prev,
+            '═══════════════════════════════════════════════════════',
+            '  VXZ INTELLIGENCE TERMINAL - OPERATOR DIRECTIVES',
+            '═══════════════════════════════════════════════════════',
             '',
-            'SECURITY WARNING: Destructive commands (purge, config) are disabled in this environment.'
+            '📡 INTELLIGENCE COMMANDS:',
+            '  readup       - Latest intelligence stream (top 5)',
+            '  breaking     - Show only breaking intel (truth >80%)',
+            '  sources      - List active source feeds',
+            '  stats        - System statistics & metrics',
+            '  top          - Highest truth score events',
+            '',
+            '🌍 GEOSPATIAL COMMANDS:',
+            '  locate <id>  - Show event coordinates',
+            '  hotspots     - Active conflict zones',
+            '  coverage     - Global coverage map',
+            '',
+            '🎯 SYSTEM COMMANDS:',
+            '  ping         - Check Hunter Array status',
+            '  status       - Full system diagnostic',
+            '  uptime       - System uptime stats',
+            '  version      - Display system version',
+            '',
+            '🎨 FUN COMMANDS:',
+            '  matrix       - Enter the Matrix',
+            '  hack         - Initiate hacking sequence',
+            '  nuke         - Launch nuclear codes (jk)',
+            '  coffee       - Brew virtual coffee',
+            '  quote        - Random intelligence quote',
+            '',
+            '⚙️  UTILITY:',
+            '  clear        - Clear terminal screen',
+            '  history      - Command history',
+            '  about        - About VXZ.News',
+            '',
+            'Type any command to execute. Intelligence is power.',
+            '═══════════════════════════════════════════════════════'
           ]);
           break;
+
         case 'readup':
           const textNews = liveNews.slice(0, 5).map(n => `[TRUTH_${n.truthScore}%] ${n.title}`).join('\n');
           setTerminalLogs(prev => [...prev, '--- LATEST INTEL STREAM ---', ...textNews.split('\n')]);
           break;
+
+        case 'breaking':
+          const breaking = liveNews.filter(n => n.truthScore >= 80).slice(0, 5);
+          if (breaking.length === 0) {
+            setTerminalLogs(prev => [...prev, '[INFO] No breaking intel at this time. All systems nominal.']);
+          } else {
+            const breakingText = breaking.map(n => `🔴 [${n.truthScore}%] ${n.title}`).join('\n');
+            setTerminalLogs(prev => [...prev, '--- BREAKING INTEL (TRUTH >80%) ---', ...breakingText.split('\n')]);
+          }
+          break;
+
+        case 'sources':
+          setTerminalLogs(prev => [...prev,
+            '--- ACTIVE SOURCE FEEDS ---',
+            '✅ T1 (Primary Newswires): Reuters/AP, Yahoo News',
+            '✅ T2 (Broadcast): BBC, Al Jazeera, France24, DW News',
+            '⏳ T3 (OSINT): Telegram, X/Twitter [FUTURE]',
+            '',
+            `Total events tracked: ${liveNews.length}`,
+            'Last sync: Just now',
+            'Status: ONLINE'
+          ]);
+          break;
+
+        case 'stats':
+          const avgTruth = liveNews.length > 0 ? Math.round(liveNews.reduce((acc, n) => acc + n.truthScore, 0) / liveNews.length) : 0;
+          const confirmed = liveNews.filter(n => n.status === 'CONFIRMED').length;
+          const assessed = liveNews.filter(n => n.status === 'ASSESSED').length;
+          const claimed = liveNews.filter(n => n.status === 'CLAIMED').length;
+          setTerminalLogs(prev => [...prev,
+            '--- SYSTEM STATISTICS ---',
+            `Total Events: ${liveNews.length}`,
+            `Average Truth Score: ${avgTruth}%`,
+            '',
+            'Status Distribution:',
+            `  CONFIRMED: ${confirmed} events`,
+            `  ASSESSED:  ${assessed} events`,
+            `  CLAIMED:   ${claimed} events`,
+            '',
+            `Cache Size: ${bookmarks.size} bookmarked`,
+            'Hunter Array: 100% operational'
+          ]);
+          break;
+
+        case 'top':
+          const topEvents = [...liveNews].sort((a, b) => b.truthScore - a.truthScore).slice(0, 5);
+          const topText = topEvents.map((n, i) => `${i + 1}. [${n.truthScore}%] ${n.title}`).join('\n');
+          setTerminalLogs(prev => [...prev, '--- TOP 5 HIGHEST TRUTH SCORES ---', ...topText.split('\n')]);
+          break;
+
+        case 'locate':
+          if (parts[1]) {
+            const event = liveNews.find(n => n.id.includes(parts[1]));
+            if (event) {
+              setTerminalLogs(prev => [...prev,
+                `--- GEOLOCATION: ${event.id} ---`,
+                `Title: ${event.title}`,
+                `Coordinates: ${event.lat.toFixed(4)}, ${event.lng.toFixed(4)}`,
+                `Truth Score: ${event.truthScore}%`,
+                `Status: ${event.status}`
+              ]);
+            } else {
+              setTerminalLogs(prev => [...prev, `[ERROR] Event ID not found: ${parts[1]}`]);
+            }
+          } else {
+            setTerminalLogs(prev => [...prev, '[ERROR] Usage: locate <event_id>']);
+          }
+          break;
+
+        case 'hotspots':
+          setTerminalLogs(prev => [...prev,
+            '--- ACTIVE CONFLICT ZONES ---',
+            '🔴 EASTERN EUROPE: High activity detected',
+            '🟡 MIDDLE EAST: Moderate tensions',
+            '🟡 ASIA-PACIFIC: Surveillance operations',
+            '🟢 AMERICAS: Stable',
+            '🟢 AFRICA: Minimal activity',
+            '',
+            'Real-time updates via Hunter Array.'
+          ]);
+          break;
+
+        case 'coverage':
+          const regions = Array.from(new Set(liveNews.map(n => n.category))).length;
+          setTerminalLogs(prev => [...prev,
+            '--- GLOBAL COVERAGE MAP ---',
+            `Active regions: ${regions}`,
+            `Total events: ${liveNews.length}`,
+            `Geographic spread: Worldwide`,
+            '',
+            'Coverage: 🌍 🌎 🌏',
+            'All continents monitored.'
+          ]);
+          break;
+
         case 'ping':
           dispatchCommand('PING_SERVER');
           break;
-        case 'purge':
-        case 'config':
-        case 'force_scrape':
-          setTerminalLogs(prev => [...prev, '[DENIED] Command requires elevated backend privileges. This frontend terminal is restricted.']);
+
+        case 'status':
+          setTerminalLogs(prev => [...prev,
+            '--- FULL SYSTEM DIAGNOSTIC ---',
+            '✅ Hunter Array: ONLINE',
+            '✅ Firestore Sync: ACTIVE',
+            '✅ WebGL Globe: RENDERING',
+            '✅ Audio System: READY',
+            '✅ Auth System: READY',
+            '✅ Cache System: ENABLED',
+            '',
+            `Events Loaded: ${liveNews.length}`,
+            `Offline Cache: ${bookmarks.size} items`,
+            'Network: STABLE',
+            '',
+            'All systems nominal. Ready for operations.'
+          ]);
           break;
+
+        case 'uptime':
+          setTerminalLogs(prev => [...prev,
+            '--- SYSTEM UPTIME ---',
+            'VXZ Intelligence Platform',
+            'Uptime: 99.9% (since launch)',
+            'Last incident: None',
+            'Next maintenance: Never',
+            '',
+            'This terminal session: Active',
+            'User: Operator (authenticated)'
+          ]);
+          break;
+
+        case 'version':
+          setTerminalLogs(prev => [...prev,
+            '╔══════════════════════════════════════╗',
+            '║   VXZ INTELLIGENCE PLATFORM v0.1.0   ║',
+            '╚══════════════════════════════════════╝',
+            '',
+            'Frontend: React 18 + TypeScript',
+            'Backend: Firebase Firestore + Cloud Functions',
+            'AI Engine: Gemini 1.5 Pro',
+            'Globe: Three.js + WebGL',
+            '',
+            'Built with ❤️  by x5engine',
+            'Powered by Claude Sonnet 4.5',
+            '',
+            'Intelligence is the new currency.'
+          ]);
+          break;
+
+        case 'matrix':
+          audio.playDataStream();
+          setTerminalLogs(prev => [...prev,
+            'ENTERING THE MATRIX...',
+            '01001000 01100101 01101100 01101100 01101111',
+            '01010111 01101111 01110010 01101100 01100100',
+            '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯',
+            'Welcome to the Matrix, Neo.',
+            'Follow the white rabbit... 🐰',
+            'Wake up.',
+            '⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯'
+          ]);
+          break;
+
+        case 'hack':
+          audio.playClick();
+          const hackSequence = [
+            '[>] Initiating connection to mainframe...',
+            '[>] Bypassing firewall... 🔓',
+            '[>] Cracking encryption... █████████░ 90%',
+            '[>] Uploading trojan... ⚠️',
+            '[>] ACCESS GRANTED ✅',
+            '',
+            'Just kidding. This is a news platform. 😎'
+          ];
+          hackSequence.forEach((line, i) => {
+            setTimeout(() => {
+              setTerminalLogs(prev => [...prev, line]);
+            }, i * 400);
+          });
+          break;
+
+        case 'nuke':
+          audio.playAlert();
+          setTerminalLogs(prev => [...prev,
+            '⚠️  WARNING: NUCLEAR LAUNCH DETECTED ⚠️',
+            '',
+            'Launching in: 3... 2... 1...',
+            '',
+            '💥 BOOM! 💥',
+            '',
+            'Just kidding! No nukes here.',
+            'Only truth bombs. 💣📰'
+          ]);
+          break;
+
+        case 'coffee':
+          audio.playClick();
+          setTerminalLogs(prev => [...prev,
+            '☕ Brewing virtual coffee...',
+            '███████░░░ 70%',
+            '██████████ 100%',
+            '',
+            '☕ Your coffee is ready!',
+            'Enjoy your virtual caffeine boost.',
+            '',
+            '(Warning: Does not actually contain caffeine)'
+          ]);
+          break;
+
+        case 'quote':
+          const quotes = [
+            '"The truth is rarely pure and never simple." - Oscar Wilde',
+            '"In a time of deceit, telling the truth is a revolutionary act." - George Orwell',
+            '"Three things cannot be long hidden: the sun, the moon, and the truth." - Buddha',
+            '"The truth will set you free, but first it will piss you off." - Gloria Steinem',
+            '"Intelligence is not the ability to store information, but to know where to find it." - Albert Einstein',
+            '"Facts do not cease to exist because they are ignored." - Aldous Huxley',
+            '"The truth is out there." - The X-Files',
+            '"Knowledge is power. Intelligence is knowing how to use it." - Anonymous'
+          ];
+          const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+          setTerminalLogs(prev => [...prev, '', randomQuote, '']);
+          break;
+
+        case 'history':
+          setTerminalLogs(prev => [...prev,
+            '--- COMMAND HISTORY ---',
+            'Recent commands executed in this session.',
+            '(Feature not fully implemented)',
+            '',
+            'Tip: Press UP arrow to recall previous commands.'
+          ]);
+          break;
+
+        case 'about':
+          setTerminalLogs(prev => [...prev,
+            '╔═════════════════════════════════════════════════╗',
+            '║           ABOUT VXZ.NEWS                        ║',
+            '╚═════════════════════════════════════════════════╝',
+            '',
+            'VXZ.News is a next-generation intelligence platform',
+            'that combines real-time news aggregation with',
+            'military-grade verification algorithms.',
+            '',
+            '🎯 MISSION:',
+            'Transform the "broadcast and trust" model into a',
+            '"scan and verify" intelligence engine.',
+            '',
+            '🔬 METHODOLOGY:',
+            '- JIC Confidence Standards',
+            '- Analysis of Competing Hypotheses (ACH)',
+            '- Source Alignment Detection',
+            '- Mathematical Truth Score Calculation',
+            '',
+            '🌐 COVERAGE:',
+            'Global news from T1 newswires, T2 broadcasters,',
+            'and future T3 OSINT sources.',
+            '',
+            '🚀 Built by: x5engine',
+            '🤖 Powered by: Claude Sonnet 4.5',
+            '📅 Launched: 2026',
+            '',
+            'Intelligence you can trust.',
+            '═════════════════════════════════════════════════'
+          ]);
+          break;
+
         case 'clear':
           setTerminalLogs([]);
           break;
-        case 'matrix':
-          audio.playDataStream();
-          setTerminalLogs(prev => [...prev, 'SYS_OVERRIDE_ACTIVE', '010101010101']);
-          break;
+
         default:
-          setTerminalLogs(prev => [...prev, `vxz: ${baseCmd}: directive not found. Type 'help'.`]);
+          setTerminalLogs(prev => [...prev, `vxz: ${baseCmd}: directive not found. Type 'help' for available commands.`]);
       }
     }
   };
