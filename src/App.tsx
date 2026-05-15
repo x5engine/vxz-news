@@ -270,21 +270,22 @@ const App: React.FC = () => {
   }));
 
   const activeNewsData = liveNews.find(n => n.id === activeItem);
-  
-  const filteredNews = liveNews.filter(n => {
-    const matchesSearch = n.title.toLowerCase().includes(searchQuery.toLowerCase()) || n.summary.toLowerCase().includes(searchQuery.toLowerCase());
 
-    let matchesCategory = true;
-    if (activeCategory === 'CONFIRMED') {
-      matchesCategory = n.status === 'CONFIRMED';
-    } else if (activeCategory === 'BREAKING') {
-      matchesCategory = n.truthScore >= 80;
-    } else if (activeCategory) {
-      matchesCategory = n.category === activeCategory;
-    }
+  // Filter and sort news by most recent (lastUpdated desc)
+  const STATUS_FILTERS = ['CONFIRMED', 'ASSESSED', 'CLAIMED'] as const;
 
-    return matchesSearch && matchesCategory;
-  });
+  const filteredNews = liveNews
+    .filter(n => {
+      const matchesSearch = n.title.toLowerCase().includes(searchQuery.toLowerCase()) || n.summary.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesCategory = !activeCategory ? true
+        : STATUS_FILTERS.includes(activeCategory as any) ? n.status === activeCategory
+        : activeCategory === 'BREAKING' ? n.truthScore >= 80
+        : n.category === activeCategory;
+
+      return matchesSearch && matchesCategory;
+    })
+    .sort((a, b) => b.lastUpdated - a.lastUpdated); // Most recent first
 
   // Extract unique categories for the matrix
   const categories = Array.from(new Set(liveNews.map(n => n.category))).filter(Boolean) as string[];
@@ -675,8 +676,8 @@ const App: React.FC = () => {
     return { ...n, hasVideo };
   }).sort((a, b) => {
     if (tvSortOrder === 'score') return b.truthScore - a.truthScore;
-    // Sort by timestamp (most recent first)
-    return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime() || -1;
+    // Sort by lastUpdated timestamp (most recent first)
+    return b.lastUpdated - a.lastUpdated;
   });
   const activeTvData = tvActiveVideo ? tvItems.find(n => n.id === tvActiveVideo) : null;
 
@@ -798,8 +799,8 @@ const App: React.FC = () => {
                         <Activity size={14} /> LIVE_FEED
                       </h2>
                       
-                      {/* Category Filter Matrix - Moved to header row */}
-                      <div className="hide-scrollbar" style={{ display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '2px' }}>
+                      {/* Category Filter Matrix - Fixed, not scrollable */}
+                      <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', paddingBottom: '2px' }}>
                         <button 
                           onClick={() => { audio.playClick(); setActiveCategory(null); }}
                           className="mono"
@@ -819,7 +820,21 @@ const App: React.FC = () => {
                           className="mono"
                           style={{ padding: '2px 8px', borderRadius: '12px', border: activeCategory === 'CONFIRMED' ? '1px solid var(--accent-green)' : '1px solid var(--border-strong)', background: activeCategory === 'CONFIRMED' ? 'rgba(52, 199, 89, 0.1)' : 'transparent', color: activeCategory === 'CONFIRMED' ? 'var(--accent-green)' : 'var(--text-tertiary)', fontSize: '9px', cursor: 'pointer', whiteSpace: 'nowrap', fontWeight: 'bold' }}
                         >
-                          CONFIRMED_ONLY
+                          CONFIRMED
+                        </button>
+                        <button
+                          onClick={() => { audio.playClick(); setActiveCategory('ASSESSED'); }}
+                          className="mono"
+                          style={{ padding: '2px 8px', borderRadius: '12px', border: activeCategory === 'ASSESSED' ? '1px solid var(--accent-amber)' : '1px solid var(--border-strong)', background: activeCategory === 'ASSESSED' ? 'rgba(255, 149, 0, 0.1)' : 'transparent', color: activeCategory === 'ASSESSED' ? 'var(--accent-amber)' : 'var(--text-tertiary)', fontSize: '9px', cursor: 'pointer', whiteSpace: 'nowrap', fontWeight: 'bold' }}
+                        >
+                          ASSESSED
+                        </button>
+                        <button
+                          onClick={() => { audio.playClick(); setActiveCategory('CLAIMED'); }}
+                          className="mono"
+                          style={{ padding: '2px 8px', borderRadius: '12px', border: activeCategory === 'CLAIMED' ? '1px solid var(--accent-red)' : '1px solid var(--border-strong)', background: activeCategory === 'CLAIMED' ? 'rgba(255, 59, 48, 0.1)' : 'transparent', color: activeCategory === 'CLAIMED' ? 'var(--accent-red)' : 'var(--text-tertiary)', fontSize: '9px', cursor: 'pointer', whiteSpace: 'nowrap', fontWeight: 'bold' }}
+                        >
+                          CLAIMED
                         </button>
                         {categories.length > 0 && categories.map(cat => (
                           <button 
@@ -880,8 +895,8 @@ const App: React.FC = () => {
                         })}
                       </AnimatePresence>
                     )}
-                    {/* Infinite Scroll Trigger */}
-                    {filteredNews.length >= 20 && (
+                    {/* Infinite Scroll Trigger - Only show if we have items and might have more */}
+                    {liveNews.length >= 20 && liveNews.length % 20 === 0 && (
                       <div ref={observerTarget} style={{ height: '40px', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {isLoadingMore && <RefreshCw size={14} className="spin" color="var(--text-tertiary)" />}
                       </div>
@@ -891,7 +906,7 @@ const App: React.FC = () => {
               </motion.section>
 
               {/* Column 2: The Global Eye */}
-              <motion.section initial={false} animate={{ width: mapWidth, opacity: showMap ? 1 : 0 }} transition={{ type: "spring", bounce: 0, duration: 0.4 }} style={{ position: 'relative', background: 'radial-gradient(circle at center, #111114 0%, #050506 100%)', display: showMap ? 'block' : 'none' }} onClick={() => { audio.playClick(); setActiveItem(null); }}>
+              <motion.section initial={false} animate={{ width: mapWidth, opacity: showMap ? 1 : 0 }} transition={{ type: "spring", bounce: 0, duration: 0.4 }} style={{ position: 'relative', background: 'radial-gradient(circle at center, #111114 0%, #050506 100%)', display: showMap ? 'block' : 'none' }}>
                 {showMap && (
                   <>
                     <GlobeView data={globeData} onPointClick={(point) => { audio.playClick(); setActiveItem(point.label); }} activeItemId={activeItem} />

@@ -21,6 +21,7 @@ export interface NewsItem {
   status: 'CONFIRMED' | 'ASSESSED' | 'CLAIMED';
   sourceCount: number;
   timestamp: string;
+  lastUpdated: number;  // Unix timestamp in milliseconds for sorting
   lat: number;
   lng: number;
   category?: string;
@@ -131,8 +132,19 @@ export const useNewsStream = () => {
         }
         
         let formattedTime = "LIVE";
+        let lastUpdatedTimestamp = 0;
         if (data.last_updated && typeof data.last_updated.toDate === 'function') {
-          formattedTime = data.last_updated.toDate().toISOString().substring(11, 16) + " UTC";
+          const dateObj = data.last_updated.toDate();
+          lastUpdatedTimestamp = dateObj.getTime();
+          // Format as: May 16, 14:23 UTC
+          const options: Intl.DateTimeFormatOptions = {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'UTC'
+          };
+          formattedTime = dateObj.toLocaleDateString('en-US', options).replace(',', '') + ' UTC';
         }
 
         liveFeed.push({
@@ -143,6 +155,7 @@ export const useNewsStream = () => {
           status: data.confidence as 'CONFIRMED' | 'ASSESSED' | 'CLAIMED' || 'CLAIMED',
           sourceCount: data.source_stack ? data.source_stack.length : 1,
           timestamp: formattedTime,
+          lastUpdated: lastUpdatedTimestamp,
           lat: lat,
           lng: lng,
           category: data.category || 'Global',
